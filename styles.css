@@ -43,6 +43,13 @@ body {
   font-style: normal;
   background-color: #0b120c;
   color: #dccce8;
+  font-size: 1.2rem;
+}
+
+main {
+  box-shadow: 5px 10px #cf482a;
+  padding-bottom: 15px;
+  padding-right: 20px;
 }
 
 h2 a {
