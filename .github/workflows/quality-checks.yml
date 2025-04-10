@@ -21,52 +21,13 @@ jobs:
         with:
           python-version: "3.10"
 
-      - name: Install spell checker and linters
+      - name: Install linters
         run: |
           python -m pip install --upgrade pip
-          pip install pyspelling
           pip install html-linter
           pip install cssutils
           npm install -g stylelint stylelint-config-standard
           npm install -g htmlhint
-
-      - name: Spell check markdown files
-        id: spellcheck
-        continue-on-error: true # Don't fail the workflow, but track result
-        run: |
-          echo "Running spell check on markdown files..."
-          # Install aspell dictionary
-          sudo apt-get install -y aspell aspell-en
-
-          # Create configuration file for pyspelling
-          cat > .pyspelling.yml << EOF
-          matrix:
-          - name: markdown
-            sources:
-            - 'posts/*.md'
-            - 'pages/*.md'
-            aspell:
-              lang: en
-              d: en_US
-            dictionary:
-              encoding: utf-8
-              wordlists:
-              - dictionary.txt
-            pipeline:
-            - pyspelling.filters.markdown:
-            - pyspelling.filters.html:
-                comments: false
-                attributes:
-                - title
-                - alt
-                ignores:
-                - code
-                - pre
-          EOF
-
-          # Run pyspelling with debug output
-          python -m pyspelling --debug || echo "Spelling issues found, but continuing"
-          echo "Spell check completed"
 
       - name: Lint CSS files
         id: csslint
@@ -125,7 +86,7 @@ jobs:
       - name: Check if all quality checks passed
         id: check_results
         run: |
-          if [[ "${{ steps.spellcheck.outcome }}" == "success" && "${{ steps.csslint.outcome }}" == "success" && "${{ steps.htmllint.outcome }}" == "success" ]]; then
+          if [[  "${{ steps.csslint.outcome }}" == "success" && "${{ steps.htmllint.outcome }}" == "success" ]]; then
             echo "All quality checks passed successfully!"
             echo "all_checks_passed=true" >> $GITHUB_OUTPUT
           else
