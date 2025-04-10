@@ -20,9 +20,36 @@
     "font-weight-notation": "numeric",
     "font-family-name-quotes": "always-where-recommended",
     "comment-whitespace-inside": "always",
-    "comment-empty-line-before": "always",
     "at-rule-no-unknown": null,
-    "at-rule-empty-line-before": "always",
-    "rule-empty-line-before": "always"
+    "at-rule-empty-line-before": [
+      "always",
+      {
+        "except": [
+          "first-nested",
+          "blockless-after-same-name-blockless"
+        ],
+        "ignore": [
+          "after-comment"
+        ]
+      }
+    ],
+    "rule-empty-line-before": [
+      "always",
+      {
+        "except": [
+          "first-nested"
+        ],
+        "ignore": [
+          "after-comment"
+        ]
+      }
+    ],
+    "property-no-vendor-prefix": null,
+    "no-descending-specificity": null,
+    "color-function-notation": "legacy",
+    "alpha-value-notation": "percentage",
+    "media-feature-range-notation": "prefix",
+    "selector-no-vendor-prefix": null,
+    "selector-not-notation": null
   }
 }
