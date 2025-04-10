@@ -1,0 +1,113 @@
+name: Website Quality Checks
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch: # Allows manual triggering from GitHub UI
+
+jobs:
+  quality-checks:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"
+
+      - name: Install spell checker and linters
+        run: |
+          python -m pip install --upgrade pip
+          pip install pyspelling
+          pip install html-linter
+          pip install cssutils
+          npm install -g stylelint stylelint-config-standard
+          npm install -g htmlhint
+
+      - name: Spell check markdown files
+        id: spellcheck
+        continue-on-error: true # Don't fail the workflow, but track result
+        run: |
+          echo "Running spell check on markdown files..."
+          # Install aspell dictionary
+          sudo apt-get install -y aspell aspell-en
+
+          # Create configuration file for pyspelling
+          cat > .pyspelling.yml << EOF
+          matrix:
+          - name: markdown
+            sources:
+            - 'posts/*.md'
+            - 'pages/*.md'
+            aspell:
+              lang: en
+            dictionary:
+              encoding: utf-8
+              file: dictionary.txt
+            pipeline:
+            - pyspelling.filters.markdown:
+            - pyspelling.filters.html:
+                comments: false
+                attributes:
+                - title
+                - alt
+                ignores:
+                - code
+                - pre
+          EOF
+
+          # Run pyspelling
+          python -m pyspelling
+
+      - name: Lint CSS files
+        id: csslint
+        continue-on-error: true # Don't fail the workflow, but track result
+        run: |
+          echo "Running CSS linting..."
+          stylelint "styles.css"
+
+      - name: Lint HTML templates
+        id: htmllint
+        continue-on-error: true # Don't fail the workflow, but track result
+        run: |
+          echo "Running HTML linting..."
+          htmlhint "templates/*.html"
+
+      - name: Check if all quality checks passed
+        id: check_results
+        run: |
+          if [[ "${{ steps.spellcheck.outcome }}" == "success" && "${{ steps.csslint.outcome }}" == "success" && "${{ steps.htmllint.outcome }}" == "success" ]]; then
+            echo "All quality checks passed successfully!"
+            echo "all_checks_passed=true" >> $GITHUB_OUTPUT
+          else
+            echo "Some quality checks failed. Check the logs for details."
+            echo "all_checks_passed=false" >> $GITHUB_OUTPUT
+            
+            # Create summary of issues
+            echo "### Quality Check Results" >> $GITHUB_STEP_SUMMARY
+            echo "- Spellcheck: ${{ steps.spellcheck.outcome }}" >> $GITHUB_STEP_SUMMARY
+            echo "- CSS Lint: ${{ steps.csslint.outcome }}" >> $GITHUB_STEP_SUMMARY
+            echo "- HTML Lint: ${{ steps.htmllint.outcome }}" >> $GITHUB_STEP_SUMMARY
+          fi
+
+    outputs:
+      all_checks_passed: ${{ steps.check_results.outputs.all_checks_passed }}
+
+  # Trigger deployment workflow if on main branch and all checks pass
+  trigger-deployment:
+    needs: quality-checks
+    if: github.ref == 'refs/heads/main' && needs.quality-checks.outputs.all_checks_passed == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger deployment workflow
+        uses: peter-evans/repository-dispatch@v2
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          event-type: auto-deploy
+          client-payload: '{"auto_triggered": true}'

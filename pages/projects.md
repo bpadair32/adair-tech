@@ -3,30 +3,40 @@ title: Projects
 slug: projects
 ---
 
-## Current Projects
+## What I'm Tinkering With
 
-There are the personal projects that I am currently wortking on. These are all shared on GitHub under the MIT license unless otherwise noted. I want to make clear, that these are personal projects, designed and maintained to support my own interests and efforts. I am happy to share them with others, and if you can get use out of them, please do! However, I did not create any of these _for_ others. If you have suggestions, bug fixes, etc., please feel free to open an issue or better yet create a PR. If it is something that I will use, or at the very least does not interfere with how I use the project I will merge it in. If you have an issue that I do not address, or a PR that I do not merge, feel free to fork the project and modify it to meet your needs.
+Here's a peek at some personal projects I've been working on. They're all available on GitHub under the MIT license, so feel free to check them out!
+
+A quick note: These projects were built to scratch my own particular itches. I'm happy to share them with the world, but I created them primarily for myself. If you find them useful - awesome! If you have ideas or bug fixes, I'd love to see your issues or pull requests. That said, I'll only implement features that I personally find valuable, so if we don't see eye-to-eye on something, remember that forking is your friend! That's the beauty of open source.
 
 ### DataForge
 
-This is the Static Site Generator that runs this website. It is very simple, by design. I found that most of the SSGs that are out there, were way more complicated than I needed for my personal website. I created DataForge to make maintaining and updating my personal site quick and easy. It is built in Python and uses Jinja templates and Markdown for the posts and pages.
+This is the static site generator that powers the website you're looking at right now. I built DataForge because most existing SSGs felt like using a sledgehammer to hang a picture frame - they're powerful but way more complex than what I needed for my personal site.
 
-[DataForge on GitHub](https://github.com/bpadair32/DataForge)
+DataForge is deliberately minimal, focused on making it dead simple to maintain a clean personal site without a lot of fuss. It uses Python with Jinja templates and Markdown for content - straightforward tools that get the job done without unnecessary complexity.
+
+[Check out DataForge on GitHub](https://github.com/bpadair32/DataForge)
 
 ### docker-image-alma9-systemd
 
-This is a Docker image of Alma 9 that has systemd included in it, which is not true of most Docker OS containers. I created this so I could use the image in the testing of my ansible playbooks that need systemd.
+Ever tried testing Ansible playbooks that need systemd in a Docker container? Most OS containers strip systemd out, which is a pain when you need it for testing. This image solves that problem by packaging Alma Linux 9 with systemd included.
 
-[docker-image-alma9-systemd on GitHub](https://github.com/bpadair32/docker-image-alma9-systemd)
+It's a simple tool, but it's saved me countless hours of frustration when testing ansible playbooks that interact with system services.
+
+[View docker-image-alma9-systemd on GitHub](https://github.com/bpadair32/docker-image-alma9-systemd)
 
 ### aws-org-create-role
 
-This is a Python script that I created to solve a problem I run into pretty reguarly at my day job. The need to create the same role across all of the AWS accounts in an organization. There are numerous ways to tackle this particular problem. But I have found this to be the fastest and easiest way for me to accomplish this task. 
+This one came directly from a recurring headache at my day job: needing to create identical IAM roles across multiple AWS accounts in an organization. While there are many ways to tackle this problem, I found that a targeted Python script was the fastest solution for my workflow.
 
-[aws-org-create-role on GitHub](https://github.com/bpadair32/aws-org-create-role)
+The script is straightforward but effective - it gets the job done quickly and without unnecessary complications.
+
+[Explore aws-org-create-role on GitHub](https://github.com/bpadair32/aws-org-create-role)
 
 ### MyBrief
 
-This is the latest project that I have started playing with. It is a Python script/app that uses AI to summarize long articles so that I can get the gist of them faster. This is in its very early stages and I may or may not continue to develop it depending on how well it holds my interest.
+My newest experiment! MyBrief is a Python tool that leverages AI to summarize long articles, helping me get the gist of content without spending ages reading.
 
-[MyBrief on GitHub](https://github.com/bpadair32/myBrief)
+This project is still in its infancy, and I'm not sure how far I'll take it. Like many side projects, its future depends entirely on how interesting it remains to me over time. But the core idea - using AI to make reading more efficient - is something I find genuinely useful.
+
+[See MyBrief on GitHub](https://github.com/bpadair32/myBrief)

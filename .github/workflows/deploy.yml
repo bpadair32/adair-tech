@@ -1,0 +1,81 @@
+name: Deploy Website
+
+on:
+  # Auto-triggered by quality checks workflow when all checks pass
+  repository_dispatch:
+    types: [auto-deploy]
+
+  # Manually triggered
+  workflow_dispatch:
+    inputs:
+      reason:
+        description: "Reason for manual deployment"
+        required: false
+        default: "Routine update"
+        type: string
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    env:
+      AWS_REGION: us-east-2 # Change to your AWS region
+      S3_BUCKET: adair-tech # Change to your S3 bucket name
+      CLOUDFRONT_DISTRIBUTION_ID: ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Log deployment trigger type
+        run: |
+          if [[ "${{ github.event_name }}" == "repository_dispatch" ]]; then
+            echo "Deployment automatically triggered by successful quality checks"
+          else
+            echo "Deployment manually triggered. Reason: ${{ github.event.inputs.reason }}"
+          fi
+
+      - name: Run DataForge to build website
+        run: |
+          python main.py
+          echo "Website built successfully in dist/ directory"
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Deploy to S3
+        run: |
+          aws s3 sync dist/ s3://${{ env.S3_BUCKET }} --delete
+          echo "Website deployed to S3 bucket"
+
+      - name: Create invalidation in CloudFront
+        run: |
+          # Create invalidation for all paths
+          INVALIDATION_ID=$(aws cloudfront create-invalidation --distribution-id ${{ env.CLOUDFRONT_DISTRIBUTION_ID }} --paths "/*" --query 'Invalidation.Id' --output text)
+          echo "CloudFront invalidation created with ID: $INVALIDATION_ID"
+
+          # Wait for invalidation to complete
+          echo "Waiting for CloudFront invalidation to complete..."
+          aws cloudfront wait invalidation-completed --distribution-id ${{ env.CLOUDFRONT_DISTRIBUTION_ID }} --id $INVALIDATION_ID
+          echo "CloudFront invalidation completed"
+
+      - name: Deployment summary
+        run: |
+          echo "### Deployment Completed Successfully" >> $GITHUB_STEP_SUMMARY
+          echo "- **Deployed to:** S3 bucket ${{ env.S3_BUCKET }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **CloudFront invalidation:** Completed" >> $GITHUB_STEP_SUMMARY
+          echo "- **Deployment triggered by:** ${{ github.event_name == 'repository_dispatch' && 'Automatic (passed quality checks)' || 'Manual trigger' }}" >> $GITHUB_STEP_SUMMARY
