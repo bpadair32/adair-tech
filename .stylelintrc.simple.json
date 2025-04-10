@@ -1,0 +1,13 @@
+{
+  "extends": "stylelint-config-recommended",
+  "rules": {
+    "no-descending-specificity": null,
+    "no-duplicate-selectors": null,
+    "font-family-no-missing-generic-family-keyword": null,
+    "property-no-vendor-prefix": null,
+    "color-function-notation": null,
+    "alpha-value-notation": null,
+    "media-feature-range-notation": null,
+    "selector-not-notation": null
+  }
+}
