@@ -26,7 +26,7 @@ jobs:
           python -m pip install --upgrade pip
           pip install html-linter
           pip install cssutils
-          npm install -g stylelint stylelint-config-standard
+          npm install -g stylelint stylelint-config-standard stylelint-config-recommended
           npm install -g htmlhint
 
       - name: Lint CSS files
